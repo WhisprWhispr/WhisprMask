@@ -275,6 +275,15 @@ window.initPremiumFeatures = async () => {
           alert('WhatsApp API Simulated Connect ' + (newState ? 'ON' : 'OFF'));
           window.location.reload();
         };
+      } else {
+        const waBtn = document.getElementById('toggle-wa-btn');
+        if(waBtn) {
+          waBtn.disabled = true;
+          waBtn.textContent = 'Upgrade to Pro VIP \uD83D\uDD12';
+          waBtn.style.opacity = '0.6';
+          waBtn.style.cursor = 'not-allowed';
+          waBtn.style.background = '#6b7280';
+        }
       }
 
       if (tier === 'ult') {
@@ -286,6 +295,15 @@ window.initPremiumFeatures = async () => {
           alert('Smart AI Auto-Reply ' + (newState ? 'ON' : 'OFF'));
           window.location.reload();
         };
+      } else {
+        const aiBtn = document.getElementById('toggle-ai-btn');
+        if(aiBtn) {
+          aiBtn.disabled = true;
+          aiBtn.textContent = 'Upgrade to Ultimate Sultan \uD83D\uDD12';
+          aiBtn.style.opacity = '0.6';
+          aiBtn.style.cursor = 'not-allowed';
+          aiBtn.style.background = '#6b7280';
+        }
       }
     }
   }

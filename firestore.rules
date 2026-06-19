@@ -2,16 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Aturan untuk pengaturan Topik User
+    // Aturan untuk pengaturan Topik & Premium User
     match /users/{username} {
       allow read: if true;
-      
-      // Pisahkan create dan update agar mengecek isi data
-      allow create, update: if request.resource.data.activeTopic is string 
-                            && request.resource.data.activeTopic.size() <= 150;
-                            
-      // IZINKAN HAPUS (Delete) agar Admin bisa menghapus User
-      allow delete: if true; 
+      // Membuka akses tulis (karena tidak ada login system) namun tetap bisa membatasi field jika diperlukan
+      allow create, update, delete: if true; 
+    }
+
+    // Aturan untuk Custom Handle (Custom URL)
+    match /handles/{handle} {
+      allow read, write: if true;
     }
 
     // Aturan untuk Pesan Anonim (Inbox)

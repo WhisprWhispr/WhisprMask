@@ -281,6 +281,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!grid) return;
       grid.innerHTML = ''; // Force clear and re-render every time
       
+      // Fallback rebuild in case of global scope issues
+      if (Object.keys(topicConfig).length === 0) {
+        topicList.forEach((topic, index) => {
+          const palette = palettes[index % palettes.length];
+          topicConfig[topic] = {
+            ...palette,
+            music: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+          };
+        });
+      }
+
       Object.keys(topicConfig).forEach(topic => {
         const btn = document.createElement('button');
         btn.className = 'topic-card';
@@ -341,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       changeTopicBtn.addEventListener('click', () => {
         linkSection.classList.add('hide');
         topicSection.classList.remove('hide');
+        renderTopics(); // Wajib dipanggil supaya pilihan topik muncul
       });
     }
 
