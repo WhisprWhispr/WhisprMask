@@ -21,6 +21,7 @@
 
     <div class="container settings-container" style="max-width: 900px; text-align: left;">
         <div class="settings-grid">
+            <!-- Language -->
             <div class="settings-section animate-slide-up animate-delay-1">
                 <h3 data-i18n="settings.lang_title">Language</h3>
                 <p class="small-text" data-i18n="settings.lang_desc">Choose your preferred language:</p>
@@ -31,6 +32,7 @@
                 </div>
             </div>
             
+            <!-- Appearance -->
             <div class="settings-section animate-slide-up animate-delay-1">
                 <h3 data-i18n="settings.title">Appearance</h3>
                 <p class="small-text" data-i18n="settings.desc">Choose your favorite theme:</p>
@@ -42,6 +44,7 @@
                 </div>
             </div>
 
+            <!-- Maintenance Info -->
             <div class="settings-section settings-full-width animate-slide-up animate-delay-2" style="border-left: 4px solid var(--primary);">
                 <h3 data-i18n="settings.maint_title">Maintenance Info 🛠️</h3>
                 <p class="small-text" style="color: var(--text-main) !important; font-weight: 600;" data-i18n="settings.maint_time">
@@ -52,6 +55,14 @@
                 </p>
             </div>
 
+            <!-- Jadwal Sholat -->
+            <div class="settings-section settings-full-width animate-slide-up animate-delay-2" style="border-left: 4px solid #10b981;">
+                <h3 style="color: #10b981;">Jadwal Sholat (Method 11) 🕌</h3>
+                <p class="small-text">Dapatkan jadwal sholat presisi harian berdasarkan lokasi GPS nyata Anda.</p>
+                <button id="open-prayer-btn" class="btn" style="background: #10b981; margin-top: 10px; border: none;">Lihat Jadwal Sholat</button>
+            </div>
+
+            <!-- Premium Packages -->
             <div class="settings-section settings-full-width premium-card animate-slide-up animate-delay-3" style="text-align: center; padding: 30px 20px;">
                 <div class="premium-icon">✨</div>
                 <h3 style="color: var(--primary);" data-i18n="settings.prem_title">Super Advanced Premium Features</h3>
@@ -108,6 +119,7 @@
                 </div>
             </div>
 
+            <!-- Play Store -->
             <div class="settings-section settings-full-width animate-slide-up animate-delay-4" style="text-align: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white;">
                 <h3 style="color: white; margin-bottom: 5px;" data-i18n="playstore.title">Coming Soon to Play Store!</h3>
                 <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 15px;" data-i18n="playstore.desc">Get a faster and more convenient WhisprMask experience right from your phone.</p>
@@ -162,6 +174,7 @@
                 </div>
             </div>
 
+            <!-- App Details -->
             <div class="settings-section animate-slide-up animate-delay-4">
                 <h3 data-i18n="settings.app_title">App Details</h3>
                 <p><strong data-i18n="settings.app_name">Name:</strong> WhisprMask - Anonymous Messages</p>
@@ -170,6 +183,7 @@
                 <p style="margin-top: 15px;" class="small-text" data-i18n="settings.app_description">WhisprMask is a modern anonymous messaging platform that protects your identity like a mask, allowing you to speak freely, securely, and creatively.</p>
             </div>
 
+            <!-- Privacy -->
             <div class="settings-section animate-slide-up animate-delay-4">
                 <h3 data-i18n="settings.privacy_title">Privacy Policy</h3>
                 <p class="small-text" data-i18n="settings.privacy_desc">
@@ -177,6 +191,7 @@
                 </p>
             </div>
 
+            <!-- Terms -->
             <div class="settings-section settings-full-width animate-slide-up animate-delay-4">
                 <h3 data-i18n="settings.terms_title">Terms & Conditions</h3>
                 <p class="small-text" data-i18n="settings.terms_desc">
@@ -191,9 +206,52 @@
         <span data-i18n="footer.dev">Developed by SukaCoding.</span>
     </div>
 
-    <!-- Load App Logic as Module -->
+    <!-- ======= FULLSCREEN PRAYER SCHEDULE MODAL ======= -->
+    <div id="prayer-modal" class="hide" style="
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--bg); z-index: 9999; overflow-y: auto;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 20px 20px 40px 20px; text-align: center;
+    ">
+        <div style="width: 100%; max-width: 500px;">
+            <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 20px;">
+                <button id="close-prayer-btn" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-main); padding: 8px; border-radius: 8px;">← Kembali</button>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #065f46, #10b981); border-radius: 20px; padding: 30px; color: white; margin-bottom: 25px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🕌</div>
+                <h2 style="margin: 0 0 5px 0; font-size: 1.6rem;">Jadwal Sholat</h2>
+                <p id="prayer-location-text" style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Menunggu akses lokasi GPS presisi...</p>
+                <p id="prayer-date-text" style="margin: 5px 0 0 0; font-size: 0.85rem; opacity: 0.8;"></p>
+            </div>
+
+            <div id="prayer-loading" style="display: none; padding: 30px; color: var(--text-muted);">
+                <div class="loader" style="margin: 0 auto 15px auto;"></div>
+                <p style="margin: 0;">Mendeteksi koordinat GPS dengan akurasi tinggi...</p>
+            </div>
+
+            <div id="prayer-error" class="hide" style="
+                background: rgba(220, 38, 38, 0.1); border: 1px solid #dc2626;
+                color: #dc2626; padding: 20px; border-radius: 12px;
+                margin-bottom: 20px; font-weight: bold;
+            "></div>
+
+            <div id="prayer-results" class="hide" style="display: flex; flex-direction: column; gap: 12px;"></div>
+
+            <div id="prayer-nextup" class="hide" style="
+                margin-top: 20px; background: rgba(16, 185, 129, 0.1);
+                border: 1px solid #10b981; border-radius: 12px; padding: 15px;
+            ">
+                <p style="color: #10b981; font-weight: bold; margin: 0 0 5px 0;">⏰ Waktu Berikutnya</p>
+                <p id="prayer-nextup-text" style="margin: 0; font-size: 1.1rem; font-weight: bold; color: var(--text-main);"></p>
+            </div>
+        </div>
+    </div>
+    <!-- ======= END PRAYER MODAL ======= -->
+
+    <!-- Load Scripts -->
     <script type="module" src="app.js?v=3"></script>
     <script type="module" src="premium.js?v=3"></script>
+    <script type="module" src="prayer.js?v=2"></script>
 </body>
 </html>
-

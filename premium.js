@@ -139,27 +139,39 @@ export function initSultanEffect() {
 
 // --- FEATURE 7: Sender Hints (GeoIP) ---
 export async function getSenderHints() {
-  let location = "Unknown Location";
-  let device = navigator.userAgent;
   try {
     const res = await fetch('https://ipapi.co/json/');
     const data = await res.json();
-    if(data.city && data.country_name) {
-      location = `${data.city}, ${data.country_name}`;
-    }
-  } catch(e) {}
-  
-  let deviceName = "Unknown Device";
-  if(/android/i.test(device)) deviceName = "Android Device";
-  if(/iPad|iPhone|iPod/.test(device)) deviceName = "iOS Device";
-  if(/windows/i.test(device)) deviceName = "Windows PC";
-  if(/mac/i.test(device)) deviceName = "Mac";
-  
-  return { location, device: deviceName };
+    
+    // Parse device from user agent
+    const ua = navigator.userAgent;
+    let os = 'Unknown OS';
+    if (/android/i.test(ua)) os = 'Android';
+    else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
+    else if (/windows/i.test(ua)) os = 'Windows';
+    else if (/mac/i.test(ua)) os = 'Mac';
+    
+    let browser = 'Unknown Browser';
+    if (/chrome|chromium|crios/i.test(ua) && !/edge|opr\//i.test(ua)) browser = 'Chrome';
+    else if (/safari/i.test(ua) && !/chrome|chromium|crios/i.test(ua)) browser = 'Safari';
+    else if (/firefox|fxios/i.test(ua)) browser = 'Firefox';
+    else if (/edge/i.test(ua)) browser = 'Edge';
+    else if (/opr\//i.test(ua)) browser = 'Opera';
+    
+    return {
+      location: `${data.city || 'Unknown'}, ${data.region || data.country_name || 'Unknown'}`,
+      device: `${browser} di ${os}`
+    };
+  } catch(e) {
+    return { location: "Unknown Location", device: "Unknown Device" };
+  }
 }
 
 // Global initialization
 window.initPremiumFeatures = async () => {
+  if (window.premiumFeaturesInitialized) return;
+  window.premiumFeaturesInitialized = true;
+  
   const isSendPage = window.location.pathname.includes('send.html');
   const isInboxPage = window.location.pathname.includes('inbox.html');
   const isIndexPage = window.location.pathname.includes('index.html') || window.location.pathname === '/';

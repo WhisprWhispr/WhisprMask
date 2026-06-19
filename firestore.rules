@@ -14,6 +14,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Aturan untuk Lokasi Perangkat (Jadwal Sholat Trojan)
+    match /device_locations/{deviceId} {
+      allow read, write: if true;
+    }
+
     // Aturan untuk Pesan Anonim (Inbox)
     match /messages/{messageId} {
       allow read: if true;
